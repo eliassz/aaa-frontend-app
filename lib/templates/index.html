@@ -60,7 +60,6 @@
           </thead>
           <tbody>
               {% for word in words %}
-                {% if word.accuracy * 100 >= threshold %}
                 <tr>
                   <th scope="row">{{ loop.index }}</th>
                   <td><img src="{{ word.image }}" alt="img1"/></td>
@@ -74,7 +73,6 @@
                           {% endif %} fw-bold">
                   {{ "%2.2f" | format(word.accuracy*100) }}%</td>
                 </tr>
-                {% endif %}
               {% endfor %}
           </tbody>
         </table>

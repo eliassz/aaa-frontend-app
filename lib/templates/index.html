@@ -1,84 +1,88 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Avito AAA</title>
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-  </head>
-  <body>
-    <nav class="navbar bg-light">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="/">
-            <img src="/static/avito.svg" />
-        </a>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Avito AAA</title>
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">
+          <img src="/static/avito.svg" />
+      </a>
+    </div>
+  </nav>
+
+  {% if not error and not image %}
+  <h1 class="display-1 text-center">Привет, ААА!</h1>
+  {% endif %}
+
+  {% if error %}
+  <div class="container text-center">
+      <div class="alert alert-danger" role="alert">
+          {{ error }}
       </div>
-    </nav>
+  </div>
+  {% endif %}
 
-    {% if not error and not image%}
-    <h1 class="display-1 text-center">Привет, ААА!</h1>
-    {% endif %}
+  {% if image %}
+  <div class="container-md text-center mb-3">
+      <img class="img-fluid rounded-3" src="{{ image }}" alt="Placeholder Image">
+  </div>
+  {% endif %}
+  
+  <div class="container">
+    <form class="border border-2 m-3 p-3 rounded-4" method="POST" enctype="multipart/form-data">
+      <div class="mb-3">
+          <label for="formFile" class="form-label">Добавьте изображение для распознания текста!</label>
+          <input class="form-control" type="file" id="formFile" name="image">
+      </div>
+      <div class="mb-3">
+          <label for="threshold" class="form-label">Минимальный порог вероятности:</label>
+          <input class="form-control" type="number" id="threshold" name="threshold" min="0" max="100" step="1">
+      </div>
+      <button type="submit" class="btn btn-primary">Распознать текст на изображении</button>
+    </form>
+  </div>
 
-    {% if error %}
-    <div class="container text-center">
-        <div class="alert alert-danger" role="alert">
-            {{ error }}
-        </div>
-    </div>
-    {% endif %}
-
-    {% if image %}
-    <div class="container-md text-center mb-3">
-        <img class="img-fluid rounded-3" src="{{ image }}" alt="Placeholder Image">
-    </div>
-    {% endif %}
-    
-    <div class="container">
-      <form class="border border-2 m-3 p-3 rounded-4" method="POST" enctype="multipart/form-data">
-        <div class="mb-3">
-            <label for="formFile" class="form-label">Добавьте изображение для распознания текста!</label>
-            <input class="form-control" type="file" id="formFile" name="image">
-        </div>
-        <button type="submit" class="btn btn-primary">Распознать текст на изображении</button>
-      </form>
-    </div>
-
-    {% if words %}
-    <div class="container-md col-7">
-        <table class="table table-striped">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Изображения</th>
-                <th scope="col">Слово</th>
-                <th scope="col">Вероятность</th>
-              </tr>
-            </thead>
-            <tbody>
-                {% for word in words %}
-              <tr>
-                <th scope="row">{{ loop.index }}</th>
-                <td><img src="{{ word.image }}" alt="img1"/></td>
-                <td>{{ word.word }}</td>
-                <td 
-                class="{% if word.accuracy > 0.9 %}
-                        table-success
-                        {% elif word.accuracy > 0.6 and word.accuracy <= 0.9 %}
-                        table-warning
-                        {% else %}
-                        table-danger
-                        {% endif %} fw-bold
-                ">
-                {{ "%2.2f" | format(word.accuracy*100) }}%</td>
-              </tr>
+  {% if words %}
+  <div class="container-md col-7">
+      <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Изображения</th>
+              <th scope="col">Слово</th>
+              <th scope="col">Вероятность</th>
+            </tr>
+          </thead>
+          <tbody>
+              {% for word in words %}
+                {% if word.accuracy * 100 >= threshold %}
+                <tr>
+                  <th scope="row">{{ loop.index }}</th>
+                  <td><img src="{{ word.image }}" alt="img1"/></td>
+                  <td>{{ word.word }}</td>
+                  <td class="{% if word.accuracy > 0.9 %}
+                          table-success
+                          {% elif word.accuracy > 0.6 and word.accuracy <= 0.9 %}
+                          table-warning
+                          {% else %}
+                          table-danger
+                          {% endif %} fw-bold">
+                  {{ "%2.2f" | format(word.accuracy*100) }}%</td>
+                </tr>
+                {% endif %}
               {% endfor %}
-            </tbody>
-          </table>
-    </div>
-    {% endif %}
+          </tbody>
+        </table>
+  </div>
+  {% endif %}
 
-    <footer class="container mt-5">
-        <p class="text-center text-muted">© 2024 Академия Аналитиков Авито</p>
-    </footer>
-  </body>
+  <footer class="container mt-5">
+      <p class="text-center text-muted">© 2024 Академия Аналитиков Авито</p>
+  </footer>
+</body>
 </html>
